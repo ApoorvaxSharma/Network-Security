@@ -7,5 +7,6 @@ pymongo
 pymongo[srv]==3.12
 scikit-learn
 #dill
+mlflow
 PyYAML 
 #-e .
