@@ -64,37 +64,38 @@ def load_numpy_array_data(file_path: str) -> np.array:
     except Exception as e:
         raise NetworkSecurityException(e,sys) from e
     
-def evaluate_models(x_train,y_train, x_test,y_test, models,params):
-     try:
+def evaluate_models(X_train, y_train,X_test,y_test,models,param):
+    try:
         report = {}
 
-        for model_name, model in models.items():
-            param_grid = params[model_name]   # get params for this specific model
+        for i in range(len(list(models))):
+            model = list(models.values())[i]
+            para=param[list(models.keys())[i]]
 
-            gs = GridSearchCV(model, param_grid, cv=3, n_jobs=-1, verbose=1)
-            gs.fit(x_train, y_train)
+            gs = GridSearchCV(model,para,cv=3)
+            gs.fit(X_train,y_train)
 
-            # Update model with best parameters
-            best_model = gs.best_estimator_
-            best_model.fit(x_train, y_train)
+            model.set_params(**gs.best_params_)
+            model.fit(X_train,y_train)
 
-            # Predictions
-            y_train_pred = best_model.predict(x_train)
-            y_test_pred = best_model.predict(x_test)
+            #model.fit(X_train, y_train)  # Train model
 
-            # Scores
+            y_train_pred = model.predict(X_train)
+
+            y_test_pred = model.predict(X_test)
+
             train_model_score = r2_score(y_train, y_train_pred)
+
             test_model_score = r2_score(y_test, y_test_pred)
 
-            report[model_name] = {
+            report[list(models.keys())[i]] = {
                 "train_r2": train_model_score,
                 "test_r2": test_model_score,
+                "best_params": gs.best_params_,
                 "accuracy": test_model_score
             }
 
         return report
-    
-     except Exception as e:
-        raise NetworkSecurityException(e,sys)
 
-
+    except Exception as e:
+        raise NetworkSecurityException(e, sys)

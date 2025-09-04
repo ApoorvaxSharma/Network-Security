@@ -9,4 +9,8 @@ scikit-learn
 #dill
 mlflow
 PyYAML 
+dagshub
+fastapi
+uvicorn
+python-multipart
 #-e .
